@@ -1301,10 +1301,7 @@ public class VisitorLlvm extends LLVMIRBaseVisitor<Expression> {
             }
             return expressions.makeConstruct(elements);
         } else if (type instanceof IntegerType intType) {
-            final NonDetInt value = program.newConstant(intType, true);
-            value.setMin(intType.getMinimumValue(true));
-            value.setMax(intType.getMaximumValue(true));
-            return value;
+            return program.newConstant(intType);
         } else if (type instanceof BooleanType) {
             return new NonDetBool(types.getBooleanType());
         } else {

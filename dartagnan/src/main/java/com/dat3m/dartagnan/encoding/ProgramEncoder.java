@@ -79,18 +79,18 @@ public class ProgramEncoder implements Encoder {
     public BooleanFormula encodeConstants() {
         List<BooleanFormula> enc = new ArrayList<>();
         for (NonDetInt constant : context.getTask().getProgram().getConstants()) {
+            if (constant.getType().isMathematical()) {
+                continue;
+            }
             Formula formula = context.encodeFinalExpression(constant);
-            if (formula instanceof BitvectorFormula bitvector) {
-                boolean signed = constant.isSigned();
-                var bitvectorFormulaManager = context.getFormulaManager().getBitvectorFormulaManager();
-                int bitWidth = bitvectorFormulaManager.getLength(bitvector);
-                constant.getMin().ifPresent(min -> enc.add(bitvectorFormulaManager.greaterOrEquals(bitvector, bitvectorFormulaManager.makeBitvector(bitWidth, min), signed)));
-                constant.getMax().ifPresent(max -> enc.add(bitvectorFormulaManager.lessOrEquals(bitvector, bitvectorFormulaManager.makeBitvector(bitWidth, max), signed)));
-            } else if (formula instanceof IntegerFormula integer) {
-                var integerFormulaManager = context.getFormulaManager().getIntegerFormulaManager();
-                constant.getMin().ifPresent(min -> enc.add(integerFormulaManager.greaterOrEquals(integer, integerFormulaManager.makeNumber(min))));
-                constant.getMax().ifPresent(max -> enc.add(integerFormulaManager.lessOrEquals(integer, integerFormulaManager.makeNumber(max))));
-            } else {
+            if (formula instanceof IntegerFormula integer) {
+                // Restrict the range for fixed-width integers encoded with mathematical integers.
+                IntegerFormulaManager integerFormulaManager = context.getFormulaManager().getIntegerFormulaManager();
+                IntegerFormula min = integerFormulaManager.makeNumber(constant.getType().getMinimumValue(true));
+                IntegerFormula max = integerFormulaManager.makeNumber(constant.getType().getMaximumValue(false));
+                enc.add(integerFormulaManager.greaterOrEquals(integer, min));
+                enc.add(integerFormulaManager.lessOrEquals(integer, max));
+            } else if(!(formula instanceof BitvectorFormula)) {
                 throw new UnsupportedOperationException(
                         String.format(
                                 "Program constant bounds of type %s.",

@@ -210,7 +210,7 @@ public class AnalysisTest {
 
         b.newThread(0);
         Register r0 = b.getOrNewRegister(0, "r0");
-        b.addChild(0, newLocal(r0, b.newConstant(type, true)));
+        b.addChild(0, newLocal(r0, b.newConstant(type)));
         Label l0 = b.getOrCreateLabel(0,"l0");
         b.addChild(0, newJump(expressions.makeOr(
                 expressions.makeGT(r0, expressions.makeOne(type), true),

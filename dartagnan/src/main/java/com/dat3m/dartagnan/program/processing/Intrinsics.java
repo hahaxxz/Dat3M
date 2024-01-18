@@ -16,8 +16,6 @@ import com.dat3m.dartagnan.program.event.functions.FunctionCall;
 import com.dat3m.dartagnan.program.event.functions.ValueFunctionCall;
 import com.dat3m.dartagnan.program.event.lang.svcomp.BeginAtomic;
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.UnsignedInteger;
-import com.google.common.primitives.UnsignedLong;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sosy_lab.common.configuration.Configuration;
@@ -506,8 +504,7 @@ public class Intrinsics {
         final Expression lockAddress = call.getArguments().get(1);
         //final Expression timespec = call.getArguments().get(2);
         final var type = (IntegerType) errorRegister.getType();
-        final NonDetInt errorValue = call.getFunction().getProgram().newConstant(type, true);
-        errorValue.setMin(BigInteger.ZERO);
+        final NonDetInt errorValue = call.getFunction().getProgram().newConstant(type);
         return List.of(
                 // Allow other threads to access the condition variable.
                 EventFactory.Pthread.newUnlock(lockAddress.toString(), lockAddress),
@@ -515,7 +512,8 @@ public class Intrinsics {
                 // Re-lock.
                 EventFactory.Pthread.newLock(lockAddress.toString(), lockAddress),
                 //TODO proper error code: ETIMEDOUT
-                EventFactory.newLocal(errorRegister, errorValue)
+                EventFactory.newLocal(errorRegister, errorValue),
+                EventFactory.newAssume(expressions.makeGTE(errorRegister, expressions.makeZero(type), true))
         );
     }
 
@@ -724,7 +722,7 @@ public class Intrinsics {
         final Register errorRegister = getResultRegisterAndCheckArguments(1, call);
         final Expression lockAddress = call.getArguments().get(0);
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
-        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType(), true);
+        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType());
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Write-lock only if unlocked.
@@ -752,7 +750,7 @@ public class Intrinsics {
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
         final Expression lockAddress = call.getArguments().get(0);
-        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
+        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype());
         return List.of(
                 // Expect any other value than write-locked.
                 EventFactory.newAssume(expressions.makeNEQ(expected, getRwlockWriteLockedValue())),
@@ -772,8 +770,8 @@ public class Intrinsics {
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
         final Expression lockAddress = call.getArguments().get(0);
-        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
-        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType(), true);
+        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype());
+        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType());
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Expect any other value than write-locked.
@@ -808,7 +806,7 @@ public class Intrinsics {
         final Register errorRegister = getResultRegisterAndCheckArguments(1, call);
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Expression lockAddress = call.getArguments().get(0);
-        final Expression decrement = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
+        final Expression decrement = call.getFunction().getProgram().newConstant(getRwlockDatatype());
         final Expression one = expressions.makeOne(getRwlockDatatype());
         final Expression two = expressions.makeValue(BigInteger.TWO, getRwlockDatatype());
         final Expression lastReader = expressions.makeEQ(oldValueRegister, two);
@@ -1256,31 +1254,15 @@ public class Intrinsics {
             case "int", "short", "long", "char" -> true;
             default -> false;
         };
-        final BigInteger min = switch (suffix) {
-            case "long" -> BigInteger.valueOf(Long.MIN_VALUE);
-            case "int" -> BigInteger.valueOf(Integer.MIN_VALUE);
-            case "short" -> BigInteger.valueOf(Short.MIN_VALUE);
-            case "char" -> BigInteger.valueOf(Byte.MIN_VALUE);
-            default -> BigInteger.ZERO;
-        };
-        final BigInteger max = switch (suffix) {
-            case "int" -> BigInteger.valueOf(Integer.MAX_VALUE);
-            case "uint", "unsigned_int" -> UnsignedInteger.MAX_VALUE.bigIntegerValue();
-            case "short" -> BigInteger.valueOf(Short.MAX_VALUE);
-            case "ushort", "unsigned_short" -> BigInteger.valueOf(65535);
-            case "long" -> BigInteger.valueOf(Long.MAX_VALUE);
-            case "ulong" -> UnsignedLong.MAX_VALUE.bigIntegerValue();
-            case "char" -> BigInteger.valueOf(Byte.MAX_VALUE);
-            case "uchar" -> BigInteger.valueOf(255);
+        final int bits = switch (suffix) {
+            case "int", "uint", "unsigned_int" -> 32;
+            case "short", "ushort", "unsigned_short" -> 16;
+            case "long", "ulong" -> 64;
+            case "char", "uchar" -> 8;
             default -> throw new UnsupportedOperationException(String.format("%s is not supported", call));
         };
-        if (!(register.getType() instanceof IntegerType type)) {
-            throw new MalformedProgramException(String.format("Non-integer result register %s.", register));
-        }
-        final NonDetInt expression = call.getFunction().getProgram().newConstant(type, signed);
-        expression.setMin(min);
-        expression.setMax(max);
-        return List.of(EventFactory.newLocal(register, expression));
+        final NonDetInt expression = call.getFunction().getProgram().newConstant(types.getIntegerType(bits));
+        return List.of(EventFactory.newLocal(register, expressions.makeCast(expression, register.getType(), signed)));
     }
 
     //FIXME: The following support for memcpy, memcmp, and memset is unsound

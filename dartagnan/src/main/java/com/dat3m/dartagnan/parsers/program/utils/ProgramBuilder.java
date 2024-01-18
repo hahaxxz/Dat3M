@@ -190,8 +190,8 @@ public class ProgramBuilder {
         return mem;
     }
 
-    public NonDetInt newConstant(IntegerType type, boolean signed) {
-        return program.newConstant(type, signed);
+    public NonDetInt newConstant(IntegerType type) {
+        return program.newConstant(type);
     }
 
     // ----------------------------------------------------------------------------------------------------------------

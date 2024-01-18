@@ -118,8 +118,8 @@ public class Program {
         return functions.stream().filter(f -> f.getName().equals(name)).findFirst();
     }
 
-    public NonDetInt newConstant(IntegerType type, boolean signed) {
-        var expression = new NonDetInt(constants.size(), type, signed);
+    public NonDetInt newConstant(IntegerType type) {
+        var expression = new NonDetInt(constants.size(), type);
         constants.add(expression);
         return expression;
     }
