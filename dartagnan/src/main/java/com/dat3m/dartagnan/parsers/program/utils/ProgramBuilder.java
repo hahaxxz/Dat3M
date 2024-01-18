@@ -191,9 +191,7 @@ public class ProgramBuilder {
     }
 
     public NonDetInt newConstant(IntegerType type, boolean signed) {
-        var constant = new NonDetInt(program.getConstants().size(), type, signed);
-        program.addConstant(constant);
-        return constant;
+        return program.newConstant(type, signed);
     }
 
     // ----------------------------------------------------------------------------------------------------------------

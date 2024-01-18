@@ -60,9 +60,6 @@ public class Intrinsics {
     //FIXME This might have concurrency issues if processing multiple programs at the same time.
     private BeginAtomic currentAtomicBegin;
 
-    // TODO: This id should be part of Program
-    private int constantId;
-
     private Intrinsics() {
     }
 
@@ -508,9 +505,9 @@ public class Intrinsics {
         //final Expression condAddress = call.getArguments().get(0);
         final Expression lockAddress = call.getArguments().get(1);
         //final Expression timespec = call.getArguments().get(2);
-        final var errorValue = new NonDetInt(constantId++, (IntegerType) errorRegister.getType(), true);
+        final var type = (IntegerType) errorRegister.getType();
+        final NonDetInt errorValue = call.getFunction().getProgram().newConstant(type, true);
         errorValue.setMin(BigInteger.ZERO);
-        call.getFunction().getProgram().addConstant(errorValue);
         return List.of(
                 // Allow other threads to access the condition variable.
                 EventFactory.Pthread.newUnlock(lockAddress.toString(), lockAddress),
@@ -727,8 +724,7 @@ public class Intrinsics {
         final Register errorRegister = getResultRegisterAndCheckArguments(1, call);
         final Expression lockAddress = call.getArguments().get(0);
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
-        final var error = new NonDetInt(constantId++, (IntegerType) errorRegister.getType(), true);
-        call.getFunction().getProgram().addConstant(error);
+        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType(), true);
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Write-lock only if unlocked.
@@ -756,8 +752,7 @@ public class Intrinsics {
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
         final Expression lockAddress = call.getArguments().get(0);
-        final var expected = new NonDetInt(constantId++, getRwlockDatatype(), true);
-        call.getFunction().getProgram().addConstant(expected);
+        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
         return List.of(
                 // Expect any other value than write-locked.
                 EventFactory.newAssume(expressions.makeNEQ(expected, getRwlockWriteLockedValue())),
@@ -777,10 +772,8 @@ public class Intrinsics {
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
         final Expression lockAddress = call.getArguments().get(0);
-        final var expected = new NonDetInt(constantId++, getRwlockDatatype(), true);
-        call.getFunction().getProgram().addConstant(expected);
-        final var error = new NonDetInt(constantId++, (IntegerType) errorRegister.getType(), true);
-        call.getFunction().getProgram().addConstant(error);
+        final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
+        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType(), true);
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Expect any other value than write-locked.
@@ -815,8 +808,7 @@ public class Intrinsics {
         final Register errorRegister = getResultRegisterAndCheckArguments(1, call);
         final Register oldValueRegister = call.getFunction().newRegister(getRwlockDatatype());
         final Expression lockAddress = call.getArguments().get(0);
-        final var decrement = new NonDetInt(constantId++, getRwlockDatatype(), true);
-        call.getFunction().getProgram().addConstant(decrement);
+        final Expression decrement = call.getFunction().getProgram().newConstant(getRwlockDatatype(), true);
         final Expression one = expressions.makeOne(getRwlockDatatype());
         final Expression two = expressions.makeValue(BigInteger.TWO, getRwlockDatatype());
         final Expression lastReader = expressions.makeEQ(oldValueRegister, two);
@@ -1224,7 +1216,6 @@ public class Intrinsics {
     // Simple late intrinsics
 
     private void inlineLate(Program program) {
-        constantId = 0;
         program.getThreads().forEach(this::inlineLate);
     }
 
@@ -1286,10 +1277,9 @@ public class Intrinsics {
         if (!(register.getType() instanceof IntegerType type)) {
             throw new MalformedProgramException(String.format("Non-integer result register %s.", register));
         }
-        var expression = new NonDetInt(constantId++, type, signed);
+        final NonDetInt expression = call.getFunction().getProgram().newConstant(type, signed);
         expression.setMin(min);
         expression.setMax(max);
-        call.getFunction().getProgram().addConstant(expression);
         return List.of(EventFactory.newLocal(register, expression));
     }
 

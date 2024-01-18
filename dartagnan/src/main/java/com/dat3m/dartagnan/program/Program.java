@@ -2,6 +2,7 @@ package com.dat3m.dartagnan.program;
 
 import com.dat3m.dartagnan.configuration.Arch;
 import com.dat3m.dartagnan.expression.NonDetInt;
+import com.dat3m.dartagnan.expression.type.IntegerType;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.program.memory.Memory;
 import com.dat3m.dartagnan.program.specification.AbstractAssert;
@@ -117,8 +118,10 @@ public class Program {
         return functions.stream().filter(f -> f.getName().equals(name)).findFirst();
     }
 
-    public void addConstant(NonDetInt constant) {
-        constants.add(constant);
+    public NonDetInt newConstant(IntegerType type, boolean signed) {
+        var expression = new NonDetInt(constants.size(), type, signed);
+        constants.add(expression);
+        return expression;
     }
 
     public Collection<NonDetInt> getConstants() {
