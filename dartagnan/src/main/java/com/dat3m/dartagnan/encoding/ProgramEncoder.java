@@ -1,6 +1,7 @@
 package com.dat3m.dartagnan.encoding;
 
-import com.dat3m.dartagnan.expression.NonDetInt;
+import com.dat3m.dartagnan.expression.NonDetExpr;
+import com.dat3m.dartagnan.expression.type.IntegerType;
 import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.program.Register;
 import com.dat3m.dartagnan.program.Thread;
@@ -78,16 +79,16 @@ public class ProgramEncoder implements Encoder {
 
     public BooleanFormula encodeConstants() {
         List<BooleanFormula> enc = new ArrayList<>();
-        for (NonDetInt constant : context.getTask().getProgram().getConstants()) {
-            if (constant.getType().isMathematical()) {
+        for (NonDetExpr constant : context.getTask().getProgram().getConstants()) {
+            if (!(constant.getType() instanceof IntegerType type) || type.isMathematical()) {
                 continue;
             }
             Formula formula = context.encodeFinalExpression(constant);
             if (formula instanceof IntegerFormula integer) {
                 // Restrict the range for fixed-width integers encoded with mathematical integers.
                 IntegerFormulaManager integerFormulaManager = context.getFormulaManager().getIntegerFormulaManager();
-                IntegerFormula min = integerFormulaManager.makeNumber(constant.getType().getMinimumValue(true));
-                IntegerFormula max = integerFormulaManager.makeNumber(constant.getType().getMaximumValue(false));
+                IntegerFormula min = integerFormulaManager.makeNumber(type.getMinimumValue(true));
+                IntegerFormula max = integerFormulaManager.makeNumber(type.getMaximumValue(false));
                 enc.add(integerFormulaManager.greaterOrEquals(integer, min));
                 enc.add(integerFormulaManager.lessOrEquals(integer, max));
             } else if(!(formula instanceof BitvectorFormula)) {

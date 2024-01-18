@@ -504,7 +504,7 @@ public class Intrinsics {
         final Expression lockAddress = call.getArguments().get(1);
         //final Expression timespec = call.getArguments().get(2);
         final var type = (IntegerType) errorRegister.getType();
-        final NonDetInt errorValue = call.getFunction().getProgram().newConstant(type);
+        final Expression errorValue = call.getFunction().getProgram().newConstant(type);
         return List.of(
                 // Allow other threads to access the condition variable.
                 EventFactory.Pthread.newUnlock(lockAddress.toString(), lockAddress),
@@ -722,7 +722,7 @@ public class Intrinsics {
         final Register errorRegister = getResultRegisterAndCheckArguments(1, call);
         final Expression lockAddress = call.getArguments().get(0);
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
-        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType());
+        final Expression error = call.getFunction().getProgram().newConstant(errorRegister.getType());
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Write-lock only if unlocked.
@@ -771,7 +771,7 @@ public class Intrinsics {
         final Register successRegister = call.getFunction().newRegister(types.getBooleanType());
         final Expression lockAddress = call.getArguments().get(0);
         final Expression expected = call.getFunction().getProgram().newConstant(getRwlockDatatype());
-        final Expression error = call.getFunction().getProgram().newConstant((IntegerType) errorRegister.getType());
+        final Expression error = call.getFunction().getProgram().newConstant(errorRegister.getType());
         final Expression success = expressions.makeGeneralZero(errorRegister.getType());
         return List.of(
                 // Expect any other value than write-locked.
@@ -1243,8 +1243,7 @@ public class Intrinsics {
 
         // Nondeterministic booleans
         if (suffix.equals("bool")) {
-            BooleanType booleanType = types.getBooleanType();
-            var nondeterministicExpression = new NonDetBool(booleanType);
+            var nondeterministicExpression = call.getFunction().getProgram().newConstant(types.getBooleanType());
             Expression cast = expressions.makeCast(nondeterministicExpression, register.getType());
             return List.of(EventFactory.newLocal(register, cast));
         }
@@ -1261,7 +1260,7 @@ public class Intrinsics {
             case "char", "uchar" -> 8;
             default -> throw new UnsupportedOperationException(String.format("%s is not supported", call));
         };
-        final NonDetInt expression = call.getFunction().getProgram().newConstant(types.getIntegerType(bits));
+        final Expression expression = call.getFunction().getProgram().newConstant(types.getIntegerType(bits));
         return List.of(EventFactory.newLocal(register, expressions.makeCast(expression, register.getType(), signed)));
     }
 

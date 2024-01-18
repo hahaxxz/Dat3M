@@ -1,26 +1,31 @@
 package com.dat3m.dartagnan.expression;
 
 import com.dat3m.dartagnan.expression.processing.ExpressionVisitor;
-import com.dat3m.dartagnan.expression.type.IntegerType;
+import com.dat3m.dartagnan.expression.type.Type;
 
-// TODO why is NonDetInt not a IntConst?
-public class NonDetInt extends IntExpr {
+public class NonDetExpr implements Expression {
 
     private final int id;
+    private final Type type;
     private String sourceName;
 
     // Should only be accessed from Program
-    public NonDetInt(int id, IntegerType type) {
-        super(type);
+    public NonDetExpr(int id, Type type) {
         this.id = id;
+        this.type = type;
     }
 
     public String getName() {
-        return "nondet_int#" + id;
+        return "nondet_#" + id;
     }
 
     public void setSourceName(String name) {
         sourceName = name;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     @Override
@@ -33,10 +38,6 @@ public class NonDetInt extends IntExpr {
         if (sourceName != null) {
             return sourceName;
         }
-        IntegerType type = getType();
-        if (type.isMathematical()) {
-            return String.format("nondet_int(%d)", id);
-        }
-        return String.format("nondet_i%d(%d)", type.getBitWidth(), id);
+        return String.format("nondet_%s(%d)", type, id);
     }
 }

@@ -5,9 +5,7 @@ import com.dat3m.dartagnan.exception.MalformedProgramException;
 import com.dat3m.dartagnan.expression.Expression;
 import com.dat3m.dartagnan.expression.ExpressionFactory;
 import com.dat3m.dartagnan.expression.IntLiteral;
-import com.dat3m.dartagnan.expression.NonDetInt;
 import com.dat3m.dartagnan.expression.type.FunctionType;
-import com.dat3m.dartagnan.expression.type.IntegerType;
 import com.dat3m.dartagnan.expression.type.Type;
 import com.dat3m.dartagnan.expression.type.TypeFactory;
 import com.dat3m.dartagnan.program.*;
@@ -190,7 +188,7 @@ public class ProgramBuilder {
         return mem;
     }
 
-    public NonDetInt newConstant(IntegerType type) {
+    public Expression newConstant(Type type) {
         return program.newConstant(type);
     }
 

@@ -67,9 +67,8 @@ public interface ExpressionInspector extends ExpressionVisitor<Expression>{
     }
 
     default Expression visit(BoolLiteral boolLiteral) { return boolLiteral;  }
-    default Expression visit(NonDetBool nonDetBool) { return nonDetBool; }
     default Expression visit(IntLiteral intLiteral) { return intLiteral; }
-    default Expression visit(NonDetInt iNonDet) { return iNonDet; }
+    default Expression visit(NonDetExpr nonDetExpr) { return nonDetExpr; }
     default Expression visit(Register reg) { return reg; }
     default Expression visit(MemoryObject address) { return address; }
     default Expression visit(Function function) { return function; }

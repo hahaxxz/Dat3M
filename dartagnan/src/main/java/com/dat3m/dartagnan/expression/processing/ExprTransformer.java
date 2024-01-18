@@ -35,11 +35,6 @@ public abstract class ExprTransformer implements ExpressionVisitor<Expression> {
     }
 
     @Override
-    public Expression visit(NonDetBool nonDetBool) {
-        return nonDetBool;
-    }
-
-    @Override
     public Expression visit(IntLiteral intLiteral) {
         return intLiteral;
     }
@@ -63,8 +58,8 @@ public abstract class ExprTransformer implements ExpressionVisitor<Expression> {
     }
 
     @Override
-    public Expression visit(NonDetInt iNonDet) {
-        return iNonDet;
+    public Expression visit(NonDetExpr nonDetExpr) {
+        return nonDetExpr;
     }
 
     @Override

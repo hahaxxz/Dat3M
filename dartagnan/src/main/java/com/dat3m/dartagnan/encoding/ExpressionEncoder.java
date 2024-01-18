@@ -92,11 +92,6 @@ class ExpressionEncoder implements ExpressionVisitor<Formula> {
     }
 
     @Override
-    public Formula visit(NonDetBool nonDetBool) {
-        return booleanFormulaManager.makeVariable(Integer.toString(nonDetBool.hashCode()));
-    }
-
-    @Override
     public Formula visit(IntLiteral intLiteral) {
         
         BigInteger value = intLiteral.getValue();
@@ -292,9 +287,9 @@ class ExpressionEncoder implements ExpressionVisitor<Formula> {
     }
 
     @Override
-    public Formula visit(NonDetInt iNonDet) {
-        String name = iNonDet.getName();
-        Type type = iNonDet.getType();
+    public Formula visit(NonDetExpr nonDetExpr) {
+        String name = nonDetExpr.getName();
+        Type type = nonDetExpr.getType();
         return context.makeVariable(name, type);
     }
 

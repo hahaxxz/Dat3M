@@ -11,12 +11,11 @@ public interface ExpressionVisitor<T> {
     default T visit(BoolLiteral boolLiteral) { return null; }
     default T visit(BoolBinaryExpr bBin) { return null; }
     default T visit(BoolUnaryExpr bUn) { return null; }
-    default T visit(NonDetBool nonDetBool) { return null; }
     default T visit(IntLiteral intLiteral) { return null; }
     default T visit(IntBinaryExpr iBin) { return null; }
     default T visit(IntUnaryExpr iUn) { return null; }
     default T visit(ITEExpr iteExpr) { return null; }
-    default T visit(NonDetInt iNonDet) { return null; }
+    default T visit(NonDetExpr nonDetExpr) { return null; }
     default T visit(Register reg) { return null; }
     default T visit(MemoryObject address) { return null; }
     default T visit(Location location) { return null; }
