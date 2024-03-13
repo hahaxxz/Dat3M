@@ -12,7 +12,7 @@ public class AssertCompositeAnd extends AbstractAssert {
     private final AbstractAssert a1;
     private final AbstractAssert a2;
 
-    public AssertCompositeAnd(AbstractAssert a1, AbstractAssert a2) {
+    public AssertCompositeAnd(AbstractAssert a1, AbstractAssert a2){
         this.a1 = a1;
         this.a2 = a2;
     }
