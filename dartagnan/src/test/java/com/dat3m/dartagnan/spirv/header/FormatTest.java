@@ -11,13 +11,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
-public class SpirvHeaderFormatTest extends AbstractSpirvHeaderTest {
+public class FormatTest extends AbstractTest {
 
+    private final String input;
     private final boolean passed;
     private final String msg;
 
-    public SpirvHeaderFormatTest(String header, String msg, boolean passed) {
-        super(header);
+    public FormatTest(String input, String msg, boolean passed) {
+        this.input = input;
         this.msg = msg;
         this.passed = passed;
     }
@@ -26,39 +27,6 @@ public class SpirvHeaderFormatTest extends AbstractSpirvHeaderTest {
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {"""
-                ; @Input:
-                ; @Output: forall (0)
-                ; @Config: 1, 1, 1
-                """,
-                        "Empty input should not have thrown any exception", true},
-                {"""
-                ; @Output: forall (0)
-                ; @Config: 1, 1, 1
-                """,
-                        "Missing input should not have thrown any exception", true},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output:
-                ; @Config: 1, 1, 1
-                """,
-                        "Empty output should not have thrown any exception", true},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Config: 1, 1, 1
-                """,
-                        "Missing output should not have thrown any exception", true},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output: forall (0)
-                """,
-                        "Missing config should not have thrown any exception", true},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output: forall (0)
-                """,
-                        "Missing header should not have thrown any exception", true},
-                {"""
-                ; @Input:
                 ; @Output: forall (0)
                 ; @Config: 1, 1, 1
                 ; @Config: 1, 1, 1
@@ -73,10 +41,10 @@ public class SpirvHeaderFormatTest extends AbstractSpirvHeaderTest {
                         "Duplicated definition '%v1'", false},
                 {"""
                 ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output: exists (%v5!=456)
+                ; @Output: exists (%undefined!=456)
                 ; @Config: 1, 1, 1
                 """,
-                        "Undefined memory object '%v5'", false},
+                        "Undefined memory object '%undefined'", false},
                 {"""
                 ; @Input: %v1=7, %v2=123, %v3=0
                 ; @Output: exists (%v1!=7)
@@ -116,10 +84,10 @@ public class SpirvHeaderFormatTest extends AbstractSpirvHeaderTest {
     @Test
     public void testValidFormatHeader() {
         if (passed) {
-            parse();
+            parse(input);
         } else {
             try {
-                parse();
+                parse(input);
                 fail("Should throw exception");
             } catch (Exception e) {
                 assertEquals(msg, e.getMessage());
