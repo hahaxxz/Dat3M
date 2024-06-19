@@ -82,6 +82,7 @@ public class ProgramEncoder implements Encoder {
                 encodeDependencies());
     }
 
+    // TODO: Optimize
     public BooleanFormula encodeControlBarrier() {
         BooleanFormulaManager bmgr = context.getBooleanFormulaManager();
         BooleanFormula enc = bmgr.makeTrue();

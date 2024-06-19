@@ -36,6 +36,7 @@ public class RemoveUnusedMemory implements ProgramProcessor {
         Sets.difference(memory.getObjects(), collector.memoryObjects).forEach(memory::deleteMemoryObject);
     }
 
+    // TODO: Get all locations directly from asserts?
     private void addSpecMemoryObjects(AbstractAssert spec, MemoryObjectCollector collector) {
         if (spec instanceof AssertInline assertInline) {
             assertInline.getAssertion().getExpression().accept(collector);

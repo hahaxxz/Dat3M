@@ -42,6 +42,7 @@ public class VirtualMemoryObject extends MemoryObject {
     }
 
     // TODO: Something smarter than identity??
+
     @Override
     public boolean equals(Object o) {
         return this == o;

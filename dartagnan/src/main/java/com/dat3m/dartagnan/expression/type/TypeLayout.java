@@ -19,7 +19,11 @@ public record TypeLayout(int unpaddedSize, int alignment) {
         final int unpaddedSize;
         final int alignment;
 
+        // TODO:
         // For primitives, we assume that size and alignment requirement coincide
+        if (type instanceof BooleanType) {
+            return new TypeLayout(1, 1);
+        }
         if (type instanceof IntegerType integerType) {
             unpaddedSize = IntMath.divide(integerType.getBitWidth(), 8, RoundingMode.CEILING);
             alignment = unpaddedSize;

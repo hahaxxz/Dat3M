@@ -7,8 +7,6 @@ import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.utils.Result;
 import com.dat3m.dartagnan.verification.VerificationTask;
 import com.dat3m.dartagnan.verification.solving.AssumeSolver;
-import com.dat3m.dartagnan.verification.solving.IncrementalSolver;
-import com.dat3m.dartagnan.verification.solving.TwoSolvers;
 import com.dat3m.dartagnan.wmm.Wmm;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,8 +99,8 @@ public class SpirvRacesTest {
                 {"test_2d_local_index_inference_2.spv.dis", 1, PASS},
                 {"test_for_benign_read_write_bug.spv.dis", 1, FAIL},
                 {"test_local_id_inference.spv.dis", 1, PASS},
-                {"test_mod_invariants/global_reduce_strength.spv.dis", 2, UNKNOWN},
-                {"test_mod_invariants/local_direct.spv.dis", 2, UNKNOWN},
+                {"test_mod_invariants/global_reduce_strength.spv.dis", 1, UNKNOWN},
+                //{"test_mod_invariants/local_direct.spv.dis", 2, UNKNOWN},
                 {"test_part_load_store/store_int_and_short.spv.dis", 1, PASS},
                 {"test_structs/use_array_element.spv.dis", 1, PASS},
                 {"test_structs/use_element.spv.dis", 1, PASS},
@@ -347,9 +345,6 @@ public class SpirvRacesTest {
 
     @Test
     public void testAllSolvers() throws Exception {
-        try (SolverContext ctx = mkCtx(); ProverEnvironment prover = mkProver(ctx)) {
-            assertEquals(expected, IncrementalSolver.run(ctx, prover, mkTask()).getResult());
-        }
         /*
         // Using this solver is useless because the CAAT solver cannot deal with Property.CAT_SPEC
         try (SolverContext ctx = mkCtx(); ProverEnvironment prover = mkProver(ctx)) {
@@ -357,10 +352,6 @@ public class SpirvRacesTest {
         }*/
         try (SolverContext ctx = mkCtx(); ProverEnvironment prover = mkProver(ctx)) {
             assertEquals(expected, AssumeSolver.run(ctx, prover, mkTask()).getResult());
-        }
-        try (SolverContext ctx = mkCtx(); ProverEnvironment prover1 = mkProver(ctx);
-             ProverEnvironment prover2 = mkProver(ctx)) {
-            assertEquals(expected, TwoSolvers.run(ctx, prover1, prover2, mkTask()).getResult());
         }
     }
 

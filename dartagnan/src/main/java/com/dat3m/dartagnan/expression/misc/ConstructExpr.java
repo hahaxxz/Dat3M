@@ -39,16 +39,17 @@ public final class ConstructExpr extends NaryExpressionBase<Type, ExpressionKind
         return operands.stream().map(Expression::toString).collect(Collectors.joining(", ", "{ ", " }"));
     }
 
+    // TODO: Is it really needed?
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Construction that = (Construction) o;
-        return Objects.equals(type, that.type) && Objects.equals(arguments, that.arguments);
+        ConstructExpr that = (ConstructExpr) o;
+        return Objects.equals(type, that.type) && Objects.equals(operands, that.operands);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, arguments);
+        return Objects.hash(type, operands);
     }
 }

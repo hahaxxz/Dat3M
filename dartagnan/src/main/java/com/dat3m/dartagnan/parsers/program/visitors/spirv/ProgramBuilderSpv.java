@@ -268,9 +268,9 @@ public class ProgramBuilderSpv {
         if (types.containsKey(name) || expressions.containsKey(name)) {
             throw new ParsingException("Duplicated definition '%s'", name);
         }
-        if (TypeFactory.getInstance().isPointerType(type)) {
-            throw new ParsingException("Unexpected pointer type '%s'", name);
-        }
+        //if (TypeFactory.getInstance().isPointerType(type)) {
+        //    throw new ParsingException("Unexpected pointer type '%s'", name);
+        //}
         types.put(name, type);
         return type;
     }
@@ -325,7 +325,7 @@ public class ProgramBuilderSpv {
                 .filter(e -> e.getValue().equals(storageClass))
                 .map(e -> getExpression(e.getKey()))
                 .filter(MemoryObject.class::isInstance)
-                .map(e -> (MemoryObject)e)
+                .map(e -> (MemoryObject) e)
                 .toList();
     }
 

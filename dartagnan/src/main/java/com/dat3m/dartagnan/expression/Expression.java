@@ -30,6 +30,7 @@ public interface Expression {
         return collector.regs.build();
     }
 
+    // TODO:
     default ImmutableSet<VirtualMemoryObject> getVirtualAddresses() {
         class VirtualAddressCollector implements ExpressionInspector {
             private final ImmutableSet.Builder<VirtualMemoryObject> objects = ImmutableSet.builder();
