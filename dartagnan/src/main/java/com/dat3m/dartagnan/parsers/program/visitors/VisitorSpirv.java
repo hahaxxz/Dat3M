@@ -106,13 +106,13 @@ public class VisitorSpirv extends SpirvBaseVisitor<Program> {
         for (SpirvParser.SpvHeaderContext header : ctx.spvHeaders().spvHeader()) {
             if (header.inputHeader() != null && header.inputHeader().initList() != null) {
                 visitor.visitInitList(header.inputHeader().initList());
-            }
+        }
             if (header.configHeader() != null) {
                 int threadAmount = Integer.parseInt(header.configHeader().literanHeaderUnsignedInteger().get(0).getText());
                 int subGroupAmount = Integer.parseInt(header.configHeader().literanHeaderUnsignedInteger().get(1).getText());
                 int workGroupAmount = Integer.parseInt(header.configHeader().literanHeaderUnsignedInteger().get(2).getText());
-                threadGrid = List.of(threadAmount, subGroupAmount, workGroupAmount, 1);
-            }
+            threadGrid = List.of(threadAmount, subGroupAmount, workGroupAmount, 1);
+        }
         }
         return new ProgramBuilderSpv(threadGrid, visitor.getInputs());
     }

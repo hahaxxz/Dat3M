@@ -2,10 +2,13 @@ package com.dat3m.dartagnan.program.specification;
 
 import com.dat3m.dartagnan.encoding.EncodingContext;
 import com.dat3m.dartagnan.program.Register;
+import com.dat3m.dartagnan.program.memory.MemoryObject;
+import com.google.common.collect.Sets;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class AssertCompositeAnd extends AbstractAssert {
 
@@ -36,10 +39,15 @@ public class AssertCompositeAnd extends AbstractAssert {
     }
 
     @Override
-    public List<Register> getRegs() {
+    public List<Register> getRegisters() {
         List<Register> regs = new ArrayList<>();
-        regs.addAll(a1.getRegs());
-        regs.addAll(a2.getRegs());
+        regs.addAll(a1.getRegisters());
+        regs.addAll(a2.getRegisters());
         return regs;
+    }
+
+    @Override
+    public Set<MemoryObject> getMemoryObjects() {
+        return Sets.union(a1.getMemoryObjects(), a2.getMemoryObjects());
     }
 }

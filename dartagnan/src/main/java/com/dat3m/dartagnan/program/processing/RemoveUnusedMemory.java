@@ -11,6 +11,7 @@ import com.dat3m.dartagnan.program.specification.*;
 import com.google.common.collect.Sets;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class RemoveUnusedMemory implements ProgramProcessor {
 
@@ -31,31 +32,12 @@ public class RemoveUnusedMemory implements ProgramProcessor {
                 obj.getInitialValue(field).accept(collector);
             }
         }
+        Set<MemoryObject> ast = Set.of();
+        if (program.getSpecification() != null) {
+            ast = program.getSpecification().getMemoryObjects();
+        }
         // Traverse the program spec for references to memory objects
-        addSpecMemoryObjects(program.getSpecification(), collector);
-        Sets.difference(memory.getObjects(), collector.memoryObjects).forEach(memory::deleteMemoryObject);
-    }
-
-    // TODO: Get all locations directly from asserts?
-    private void addSpecMemoryObjects(AbstractAssert spec, MemoryObjectCollector collector) {
-        if (spec instanceof AssertInline assertInline) {
-            assertInline.getAssertion().getExpression().accept(collector);
-        }
-        if (spec instanceof AssertBasic assertBasic) {
-            assertBasic.getLeft().accept(collector);
-            assertBasic.getRight().accept(collector);
-        }
-        if (spec instanceof AssertNot assertNot) {
-            addSpecMemoryObjects(assertNot.getChild(), collector);
-        }
-        if (spec instanceof AssertCompositeAnd assertCompositeAnd) {
-            addSpecMemoryObjects(assertCompositeAnd.getLeft(), collector);
-            addSpecMemoryObjects(assertCompositeAnd.getRight(), collector);
-        }
-        if (spec instanceof AssertCompositeOr assertCompositeOr) {
-            addSpecMemoryObjects(assertCompositeOr.getLeft(), collector);
-            addSpecMemoryObjects(assertCompositeOr.getRight(), collector);
-        }
+        Sets.difference(memory.getObjects(), Sets.union(collector.memoryObjects, ast)).forEach(memory::deleteMemoryObject);
     }
 
     private static class MemoryObjectCollector implements ExpressionInspector {

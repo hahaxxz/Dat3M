@@ -2,9 +2,11 @@ package com.dat3m.dartagnan.program.specification;
 
 import com.dat3m.dartagnan.encoding.EncodingContext;
 import com.dat3m.dartagnan.program.Register;
+import com.dat3m.dartagnan.program.memory.MemoryObject;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractAssert {
 
@@ -33,5 +35,7 @@ public abstract class AbstractAssert {
 
     public abstract BooleanFormula encode(EncodingContext context);
 
-    public abstract List<Register> getRegs();
+    public abstract List<Register> getRegisters();
+
+    public abstract Set<MemoryObject> getMemoryObjects();
 }

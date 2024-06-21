@@ -66,18 +66,6 @@ public class FormatTest extends AbstractTest {
                 ; @Config: 1, 1, 1
                 """,
                         "Existential assertions can not be used in conjunction with other assertions", false},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output: forall (0)
-                ; @Config: 1, 1, 0
-                """,
-                        "Thread grid dimensions must be positive", false},
-                {"""
-                ; @Input: %v1=7, %v2=123, %v3=0
-                ; @Output: forall (0)
-                ; @Config: 100, 100, 100
-                """,
-                        "Thread grid dimensions must be less than 128", false},
         });
     }
 

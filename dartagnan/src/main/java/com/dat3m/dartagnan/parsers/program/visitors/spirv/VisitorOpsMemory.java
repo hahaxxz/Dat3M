@@ -160,12 +160,14 @@ public class VisitorOpsMemory extends SpirvBaseVisitor<Event> {
             // TODO: Handle empty arrays
             int size = type.getNumElements();
             if (size != -1 && size != cValue.getOperands().size()) {
-                // TODO: Add a unit test for this
                 throw new ParsingException("Unexpected number of elements in variable '%s', " +
-                        "expected '%d' elements but received '%d' elements", id, size, cValue.getOperands().size());
+                        "expected %d but received %d", id, size, cValue.getOperands().size());
             }
             Type eType = type.getElementType();
-            List<Expression> elements = cValue.getOperands().stream().map(a -> castInput(id, eType, a)).toList();
+            List<Expression> elements = new ArrayList<>();
+            for (int i = 0; i < cValue.getOperands().size(); i++) {
+                elements.add(castInput(String.format("%s[%d]", id, i), eType, cValue.getOperands().get(i)));
+            }
             return EXPR_FACTORY.makeArray(elements.get(0).getType(), elements, true);
         }
         throw new ParsingException("Mismatching value type for variable '%s', " +
@@ -177,9 +179,8 @@ public class VisitorOpsMemory extends SpirvBaseVisitor<Event> {
             // TODO: Test empty structures
             int size = type.getDirectFields().size();
             if (size != cValue.getOperands().size()) {
-                // TODO: Add a unit test for this
                 throw new ParsingException("Unexpected number of elements in variable '%s', " +
-                        "expected '%d' elements but received '%d' elements", id, size, cValue.getOperands().size());
+                        "expected %d but received %d", id, size, cValue.getOperands().size());
             }
             List<Expression> elements = new ArrayList<>();
             for (int i = 0; i < size; i++) {

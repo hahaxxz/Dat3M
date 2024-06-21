@@ -3,11 +3,16 @@ package com.dat3m.dartagnan.program.specification;
 import com.dat3m.dartagnan.encoding.EncodingContext;
 import com.dat3m.dartagnan.expression.Expression;
 import com.dat3m.dartagnan.expression.integers.IntCmpOp;
+import com.dat3m.dartagnan.expression.processing.ExpressionInspector;
 import com.dat3m.dartagnan.program.Register;
+import com.dat3m.dartagnan.program.memory.Location;
+import com.dat3m.dartagnan.program.memory.MemoryObject;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AssertBasic extends AbstractAssert {
 
@@ -49,7 +54,7 @@ public class AssertBasic extends AbstractAssert {
     }
 
     @Override
-    public List<Register> getRegs() {
+    public List<Register> getRegisters() {
         List<Register> regs = new ArrayList<>();
         if (e1 instanceof Register r1) {
             regs.add(r1);
@@ -58,5 +63,30 @@ public class AssertBasic extends AbstractAssert {
             regs.add(r2);
         }
         return regs;
+    }
+
+    @Override
+    public Set<MemoryObject> getMemoryObjects() {
+        MemoryObjectCollector collector = new MemoryObjectCollector();
+        e1.accept(collector);
+        e2.accept(collector);
+        return collector.memoryObjects;
+    }
+
+    private static class MemoryObjectCollector implements ExpressionInspector {
+
+        private final HashSet<MemoryObject> memoryObjects = new HashSet<>();
+
+        @Override
+        public Expression visitMemoryObject(MemoryObject address) {
+            memoryObjects.add(address);
+            return address;
+        }
+
+        @Override
+        public Expression visitLocation(Location location) {
+            memoryObjects.add(location.getMemoryObject());
+            return location;
+        }
     }
 }
