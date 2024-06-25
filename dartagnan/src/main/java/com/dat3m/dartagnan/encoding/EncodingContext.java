@@ -64,7 +64,7 @@ public final class EncodingContext {
     @Option(name = MERGE_CF_VARS,
             description = "Merges control flow variables of events with identical control-flow behaviour.",
             secure = true)
-    private boolean shouldMergeCFVars = true;
+    private boolean shouldMergeCFVars = false;
 
     @Option(name = USE_INTEGERS,
             description = "Data is encoded with mathematical integers instead of bitvectors.  Default: false.",
@@ -197,12 +197,15 @@ public final class EncodingContext {
         boolean b = first.getGlobalId() < second.getGlobalId();
         Event x = b ? first : second;
         Event y = b ? second : first;
+
+        /*
+        // TODO: Branch equivalence should consider control barriers
         if (executionAnalysis.isImplied(x, y)) {
             return execution(x);
         }
         if (executionAnalysis.isImplied(y, x)) {
             return execution(y);
-        }
+        }*/
         return booleanFormulaManager.and(execution(x), execution(y));
     }
 
